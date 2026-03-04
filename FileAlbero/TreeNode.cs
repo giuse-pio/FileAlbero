@@ -84,7 +84,80 @@ namespace FileAlbero
             return true;
         }
 
-        
+        public static void GeneraMatriceGrafo(string[] nodi)
+        {
+            float infinito = float.PositiveInfinity;
+            int n = nodi.Length;
+            float[,] matrice = new float[n, n];
+
+            Dictionary<string, int> mappaNodi = new Dictionary<string, int>();
+            for (int i = 0; i < n; i++)
+            {
+                mappaNodi[nodi[i]] = i;
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == j)
+                    {
+                        matrice[i, j] = 0;
+                    }
+                    else
+                    {
+                        matrice[i, j] = infinito;
+                    }
+                }
+            }
+            if (!File.Exists("AlberoFile3.txt"))
+            {
+                return;
+            }
+            string[] righe = File.ReadAllLines("AlberoFile3.txt");
+
+            foreach (var r in righe)
+            {
+                string[] parti = r.Split(' ');
+
+                if (parti.Length < 3)
+                    continue;
+
+                string partenza = parti[0];
+                string arrivo = parti[1];
+                string peso = parti[2];
+
+                if (mappaNodi.ContainsKey(partenza) && mappaNodi.ContainsKey(arrivo))
+                {
+                    int riga = mappaNodi[partenza];
+                    int colonna = mappaNodi[arrivo];
+                    matrice[riga, colonna] = float.Parse(peso);
+                }
+            }
+            Console.WriteLine("\nMatrice:");
+            Console.WriteLine("       A     B     C");
+            for (int i = 0; i < n; i++)
+            {
+                Console.Write(nodi[i] + " ");
+                for (int j = 0; j < n; j++)
+                {
+                    string v;
+                    if (double.IsPositiveInfinity(matrice[i, j]))
+                    {
+                        v = "∞";
+                    }
+                    else
+                    {
+                        v = matrice[i, j].ToString();
+                    }
+                    Console.Write(v.PadLeft(6));
+                }
+                Console.WriteLine();
+
+            }
+        }
+
+
+
+
+
+
     }
 }
 
