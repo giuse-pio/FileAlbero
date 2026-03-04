@@ -11,41 +11,80 @@ namespace FileAlbero
         public T Value { get; set; }
         public List<TreeNode<T>> Nodes { get; set; } = new();
 
-        public void StampaAlbero(TreeNode<T> radice)
+        public TreeNode(T value)
         {
-            Console.WriteLine(radice.Value);
-            foreach (var nodi in radice.Nodes)
+            Value = value;
+        }
+        public void StampaAlbero(TreeNode<T> radice, int livello)
+        {
+            if (radice == null)
+                return;
+            string indentazione = new string(' ', livello * 4);
+            Console.WriteLine(indentazione + radice.Value);
+
+            foreach (var figlio in radice.Nodes)
             {
-                StampaAlbero(nodi);
+                StampaAlbero(figlio, livello + 1);
             }
 
         }
 
-
-        public void AlberoDaFile()
+        public static TreeNode<T> CercaNodo(TreeNode<T> nodo, T valore)
         {
-            StreamReader reader = new("FileAlbero.txt");
-            TreeNode<T> radice = new();
-            while (!reader.EndOfStream)
+            TreeNode<T> nodoTrovato = null;
+            if (EqualityComparer<T>.Default.Equals(nodo.Value, valore))
+                return nodo;
+            foreach (var n in nodo.Nodes)
             {
-                string line = reader.ReadLine();
-                
+                nodoTrovato = CercaNodo(n, valore);
+                if (nodoTrovato != null)
+                    return nodoTrovato;
             }
+            return null;
         }
-        //public void StampaAlberoDaFile(TreeNode<T> radice, string filePath)
-        //{
-        //    using (StreamWriter writer = new StreamWriter(filePath))
-        //    {
-        //        StampaAlberoDaFileHelper(radice, writer, 0);
-        //    }
-        //}
-        //private void StampaAlberoDaFileHelper(TreeNode<T> nodo, StreamWriter writer, int livello)
-        //{
-        //    writer.WriteLine(new string(' ', livello * 2) + nodo.Value);
-        //    foreach (var nodi in nodo.Nodes)
-        //    {
-        //        StampaAlberoDaFileHelper(nodi, writer, livello + 1);
-        //    }
-        //}
+
+
+        public static TreeNode<T> AlberoDaFile()
+        {
+            TreeNode<T> radice = null;
+            string[] righe = File.ReadAllLines("AlberoFile.txt");
+            foreach (var r in righe)
+            {
+                string[] parti = r.Split(' ');
+                string figlio = parti[0];
+                string padre = parti[1];
+
+                if (padre == figlio)
+                {
+                    radice = new TreeNode<T>((T)Convert.ChangeType(padre, typeof(T)));
+                    continue;
+                }
+
+                TreeNode<T> nodoPadre = CercaNodo(radice, (T)Convert.ChangeType(padre, typeof(T)));
+                if (nodoPadre != null)
+                {
+                    nodoPadre.Nodes.Add(new TreeNode<T>((T)Convert.ChangeType(figlio, typeof(T))));
+                }
+
+
+            }
+
+            return radice;
+        }
+
+
+        public bool FileDaAlbero(TreeNode<T> root)
+        {
+            if (root == null) return false;
+            foreach (var n in root.Nodes)
+            {
+                File.AppendAllText("AlberoFile2.txt", $"{n.Value} {root.Value}\n");
+                FileDaAlbero(n);
+            }
+            return true;
+        }
+
+        
     }
 }
+
