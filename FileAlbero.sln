@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeLibrary", "TreeLibrary\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es_TreeView", "Es_TreeView\Es_TreeView.csproj", "{0759C1AD-43E2-4004-ABA8-6C1521CBBC8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrafoFile", "GrafoFile\GrafoFile.csproj", "{8BAE9116-3293-4019-88B8-3FAB52EBD258}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0759C1AD-43E2-4004-ABA8-6C1521CBBC8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0759C1AD-43E2-4004-ABA8-6C1521CBBC8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0759C1AD-43E2-4004-ABA8-6C1521CBBC8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BAE9116-3293-4019-88B8-3FAB52EBD258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BAE9116-3293-4019-88B8-3FAB52EBD258}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BAE9116-3293-4019-88B8-3FAB52EBD258}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BAE9116-3293-4019-88B8-3FAB52EBD258}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

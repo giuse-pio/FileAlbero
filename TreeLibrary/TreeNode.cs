@@ -12,90 +12,8 @@ namespace FileAlbero
 
         public TreeNode(T value) { Value = value; }
 
-        // --- ALGORITMI DI RICERCA (Sistemati per non esplodere) ---
 
-        // BFS che si ferma se trova uno dei posti dove mangiare
-        public void BFS_Mangiare(List<string> targetValues)
-        {
-            var visited = new HashSet<TreeNode<T>>();
-            var queue = new Queue<TreeNode<T>>();
-            queue.Enqueue(this);
-            visited.Add(this);
-
-            while (queue.Count > 0)
-            {
-                var current = queue.Dequeue();
-                Console.WriteLine("Visitato: " + current.Value);
-
-                // Controllo se il valore del nodo corrente è nella lista dei posti dove si mangia
-                if (targetValues.Contains(current.Value.ToString()))
-                {
-                    Console.WriteLine(">>> TROVATO! Puoi mangiare da: " + current.Value);
-                    return;
-                }
-
-                foreach (var neighbor in Nodes)
-                {
-                    if (!visited.Contains(neighbor))
-                    {
-                        visited.Add(neighbor);
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-        }
-
-        // DFS che si ferma se trova uno dei posti dove mangiare
-        public bool DFS_Mangiare(List<string> targetValues, HashSet<TreeNode<T>> visited)
-        {
-            if (visited.Contains(this)) return false;
-
-            Console.WriteLine("Visitato: " + this.Value);
-            visited.Add(this);
-
-            if (targetValues.Contains(this.Value.ToString()))
-            {
-                Console.WriteLine(">>> TROVATO! Puoi mangiare da: " + this.Value);
-                return true;
-            }
-
-            foreach (var neighbor in Nodes)
-            {
-                if (neighbor.DFS_Mangiare(targetValues, visited)) return true;
-            }
-            return false;
-        }
-        // --- METODI ORIGINALI ---
-
-        public static void GeneraMatriceGrafo(string[] nodi)
-        {
-            float infinito = float.PositiveInfinity;
-            int n = nodi.Length;
-            float[,] matrice = new float[n, n];
-            Dictionary<string, int> mappaNodi = new Dictionary<string, int>();
-            for (int r = 0; r < n; r++)
-            {
-                mappaNodi[nodi[r]] = r;
-                for (int c = 0; c < n; c++) matrice[r, c] = (r == c) ? 0 : infinito;
-            }
-            if (!File.Exists("AlberoFile3.txt")) return;
-            foreach (var riga in File.ReadAllLines("AlberoFile3.txt"))
-            {
-                string[] p = riga.Split(' ');
-                if (p.Length < 3) continue;
-                if (mappaNodi.ContainsKey(p[0]) && mappaNodi.ContainsKey(p[1]))
-                    matrice[mappaNodi[p[0]], mappaNodi[p[1]]] = float.Parse(p[2]);
-            }
-            Console.WriteLine("\nMatrice:");
-            for (int r = 0; r < n; r++)
-            {
-                Console.Write(nodi[r] + " ");
-                for (int c = 0; c < n; c++)
-                    Console.Write((double.IsPositiveInfinity(matrice[r, c]) ? "∞" : matrice[r, c].ToString()).PadLeft(6));
-                Console.WriteLine();
-            }
-        }
-
+      
         public void StampaAlbero(TreeNode<T> node, int livello)
         {
             Console.WriteLine(new string(' ', livello) + node.Value);
@@ -180,40 +98,154 @@ namespace FileAlbero
             righe.Add(new string('-', livello) + nodo.Value.ToString());
             foreach (var n in nodo.Nodes) CreaLivelli(n, livello + 1, righe);
         }
+  public static void GeneraMatriceGrafo(string[] nodi)
+        {
+            float infinito = float.PositiveInfinity;
+            int n = nodi.Length;
+            float[,] matrice = new float[n, n];
+            Dictionary<string, int> mappaNodi = new Dictionary<string, int>();
+            for (int r = 0; r < n; r++)
+            {
+                mappaNodi[nodi[r]] = r;
+                for (int c = 0; c < n; c++) matrice[r, c] = (r == c) ? 0 : infinito;
+            }
+            if (!File.Exists("AlberoFile3.txt")) return;
+            foreach (var riga in File.ReadAllLines("AlberoFile3.txt"))
+            {
+                string[] p = riga.Split(' ');
+                if (p.Length < 3) continue;
+                if (mappaNodi.ContainsKey(p[0]) && mappaNodi.ContainsKey(p[1]))
+                    matrice[mappaNodi[p[0]], mappaNodi[p[1]]] = float.Parse(p[2]);
+            }
+            Console.WriteLine("\nMatrice:");
+            for (int r = 0; r < n; r++)
+            {
+                Console.Write(nodi[r] + " ");
+                for (int c = 0; c < n; c++)
+                    Console.Write((double.IsPositiveInfinity(matrice[r, c]) ? "∞" : matrice[r, c].ToString()).PadLeft(6));
+                Console.WriteLine();
+            }
+        }
 
         public static TreeNode<T> GrafoDaFile()
         {
-            if (!File.Exists("grafofile.txt")) return null;
+            if (!File.Exists("grafofile.txt"))
+                return null;
 
-            var dizionarioNodi = new Dictionary<string, TreeNode<T>>();
+            string[] righe = File.ReadAllLines("grafofile.txt");
+            List<TreeNode<T>> listaNodi = new List<TreeNode<T>>();
 
-            foreach (var r in File.ReadAllLines("grafofile.txt"))
+            foreach (string r in righe)
             {
-                string[] p = r.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (p.Length < 2) continue;
+                string[] parti = r.Split(' ');
+                if (parti.Length < 2)
+                    continue;
 
-                string figlioVal = p[0].Trim();
-                string padreVal = p[1].Trim();
+                string nomeFiglio = parti[0].Trim();
+                string nomePadre = parti[1].Trim();
 
-                // 1. Assicurati che esistano nel dizionario (creali se mancano)
-                if (!dizionarioNodi.ContainsKey(figlioVal))
-                    dizionarioNodi[figlioVal] = new TreeNode<T>((T)Convert.ChangeType(figlioVal, typeof(T)));
-
-                if (!dizionarioNodi.ContainsKey(padreVal))
-                    dizionarioNodi[padreVal] = new TreeNode<T>((T)Convert.ChangeType(padreVal, typeof(T)));
-
-                // 2. Collega l'OGGETTO che sta nel dizionario
-                var padreObj = dizionarioNodi[padreVal];
-                var figlioObj = dizionarioNodi[figlioVal];
-
-                // EVITA DUPLICATI: controlla se è già collegato
-                if (!padreObj.Nodes.Contains(figlioObj))
+                TreeNode<T> figlio = null;
+                foreach (TreeNode<T> nodo in listaNodi)
                 {
-                    padreObj.Nodes.Add(figlioObj);
+                    if (nodo.Value.ToString() == nomeFiglio)
+                    {
+                        figlio = nodo;
+                        break;
+                    }
+                }
+
+                if (figlio == null)
+                {
+                    figlio = new TreeNode<T>((T)Convert.ChangeType(nomeFiglio, typeof(T)));
+                    listaNodi.Add(figlio);
+                }
+
+                TreeNode<T> padre = null;
+                foreach (TreeNode<T> nodo in listaNodi)
+                {
+                    if (nodo.Value.ToString() == nomePadre)
+                    {
+                        padre = nodo;
+                        break;
+                    }
+                }
+
+                if (padre == null)
+                {
+                    padre = new TreeNode<T>((T)Convert.ChangeType(nomePadre, typeof(T)));
+                    listaNodi.Add(padre);
+                }
+
+                if (!padre.Nodes.Contains(figlio))
+                {
+                    padre.Nodes.Add(figlio);
                 }
             }
 
-            return dizionarioNodi.ContainsKey("Casa") ? dizionarioNodi["Casa"] : null;
+            foreach (TreeNode<T> nodo in listaNodi)
+            {
+                if (nodo.Value.ToString() == "Casa")
+                    return nodo;
+            }
+
+            return null;
+        }
+
+
+        // BFS che si ferma se trova uno dei posti dove mangiare
+        public void BFS_Mangiare(List<string> postiDoveMangiare)
+        {
+            var visited = new HashSet<TreeNode<T>>();
+            var queue = new Queue<TreeNode<T>>();
+            queue.Enqueue(this);
+            visited.Add(this);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                Console.WriteLine("Visitato: " + current.Value);
+
+                if (postiDoveMangiare.Contains(current.Value.ToString()))
+                {
+                    Console.WriteLine("trovato, puoi mangiare in " + current.Value);
+                    return;
+                }
+
+                foreach (var neighbor in current.Nodes)
+                {
+                    if (!visited.Contains(neighbor))
+                    {
+                        visited.Add(neighbor);
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        // DFS che si ferma se trova uno dei posti dove mangiare
+        public bool DFS_Mangiare(List<string> postiDoveMangiare, HashSet<TreeNode<T>> visited)
+        {
+            if (visited.Contains(this))
+            {
+                return false;
+            }
+            Console.WriteLine("Visitato: " + this.Value);
+            visited.Add(this);
+
+            if (postiDoveMangiare.Contains(this.Value.ToString()))
+            {
+                Console.WriteLine("trovato, puoi mangiare in " + this.Value);
+                return true;
+            }
+
+            foreach (var neighbor in Nodes)
+            {
+                if (neighbor.DFS_Mangiare(postiDoveMangiare, visited))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
